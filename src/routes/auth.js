@@ -63,6 +63,23 @@ router.post(
       res.json({ token });
     } catch (err) {
       console.error("Login error:", err);
+      console.error("Error name:", err.name);
+      console.error("Error message:", err.message);
+      console.error("Error stack:", err.stack);
+
+      // Provide more specific error messages
+      if (err.name === 'ValidationError') {
+        return res.status(400).json({ message: "Invalid input data" });
+      }
+      if (err.name === 'MongoError' || err.name === 'MongooseError') {
+        return res.status(500).json({ message: "Database error" });
+      }
+      if (err.message && err.message.includes('bcrypt')) {
+        return res.status(500).json({ message: "Password hashing error" });
+      }
+      if (err.message && err.message.includes('jwt')) {
+        return res.status(500).json({ message: "Token generation error" });
+      }
       res.status(500).json({ message: "Server error" });
     }
   }
